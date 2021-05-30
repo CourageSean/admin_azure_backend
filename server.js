@@ -15,6 +15,8 @@ app.use(fileUpload({ useTempFiles: true }));
 
 // Routes
 app.use('/member', require('./routes/memberRouter'));
+app.use('/api', require('./routes/employeeRouter'));
+app.use('/api', require('./routes/upload'));
 
 // Connect to mongoDB
 const URI = process.env.MONGODB_URL;

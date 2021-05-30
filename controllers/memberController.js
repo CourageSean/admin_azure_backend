@@ -37,13 +37,32 @@ const memberController = {
     try {
       const { email, password } = req.body;
 
-      const member = await Member.findOne({ email });
+      const member = await Members.findOne({ email });
       if (!member)
         return res.status(400).json({ msg: 'Member does not exist.' });
-      const isMatch = await bcrypt.compare(passowrd, member.password);
-      if (!isMatch) return res.status(400).json({ msg: 'Incorrect password.' });
+      //   const isMatch = await bcrypt.compare(password, member.password);
+      if (member.password !== password)
+        return res.status(400).json({ msg: 'Incorrect password.' });
+      //   if (!isMatch) return res.status(400).json({ msg: 'Incorrect password.' });
 
       //If Login success, create access token and refresh token
+
+      const accesstoken = createAccessToken({ id: member._id });
+      const refreshtoken = createRefreshToken({ id: member._id });
+
+      res.cookie('refreshtoken', refreshtoken, {
+        httpOnly: true,
+        path: '/member/refresh_token',
+      });
+      res.json({ accesstoken });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  logout: async (req, res) => {
+    try {
+      res.clearCookie('refreshtoken', { path: '/member/refresh_token' });
+      return res.json({ msg: 'Logged out' });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -61,8 +80,20 @@ const memberController = {
 
         res.json({ member, accesstoken });
       });
-      res.json({ rf_token });
-    } catch (err) {}
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getMember: async (req, res) => {
+    try {
+      const member = await Members.findById(req.member.id).select('-password');
+      if (!member)
+        return res.status(400).json({ msg: 'Member does not exist' });
+
+      res.json(member);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
   },
 };
 
