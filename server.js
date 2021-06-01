@@ -3,14 +3,44 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const fileupload = require('express-fileupload');
-const cookiParser = require('cookie-parser');
+
 const cookieParser = require('cookie-parser');
+const PORT = process.env.PORT || 5000;
+
 const fileUpload = require('express-fileupload');
 
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: 'GET,PUT,POST,OPTIONS',
+  allowedHeaders: 'Content-Type,token',
+  allowedHeaders: 'Content-Type,Authorization',
+};
 const app = express();
-app.use(express.json());
+app.use(cors(corsOptions));
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Credentials', true);
+//   next();
+// });
+
 app.use(cookieParser());
-app.use(cors());
+
+// app.use(function (req, res, next) {
+//   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+//   res.setHeader(
+//     'Access-Control-Allow-Methods',
+//     'GET, POST, OPTIONS, PUT, PATCH, DELETE'
+//   );
+//   res.setHeader(
+//     'Access-Control-Allow-Headers',
+//     'X-Requested-With,content-type'
+//   );
+//   res.setHeader('Access-Control-Allow-Credentials', true);
+//   next();
+// });
+app.use(express.json());
+
+// app.use(cors({ origin: true, credentials: true }));
 app.use(fileUpload({ useTempFiles: true }));
 
 // Routes
@@ -39,7 +69,6 @@ app.get('/', (req, res) => {
   res.json({ msg: 'hey sean' });
 });
 
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log('Server running on port', PORT);
 });

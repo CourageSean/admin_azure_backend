@@ -27,6 +27,7 @@ const memberController = {
       res.cookie('refreshtoken', refreshtoken, {
         httpOnly: true,
         path: '/member/refresh_token',
+        maxAge: 900000,
       });
       res.json({ accesstoken });
     } catch (err) {
@@ -35,6 +36,7 @@ const memberController = {
   },
   login: async (req, res) => {
     try {
+      console.log(req.body);
       const { email, password } = req.body;
 
       const member = await Members.findOne({ email });
@@ -43,18 +45,21 @@ const memberController = {
       //   const isMatch = await bcrypt.compare(password, member.password);
       if (member.password !== password)
         return res.status(400).json({ msg: 'Incorrect password.' });
-      //   if (!isMatch) return res.status(400).json({ msg: 'Incorrect password.' });
+      // if (!isMatch) return res.status(400).json({ msg: 'Incorrect password.' });
 
       //If Login success, create access token and refresh token
 
       const accesstoken = createAccessToken({ id: member._id });
       const refreshtoken = createRefreshToken({ id: member._id });
+      // res.cookie('jwtToken', 'test1234', { httpOnly: true });
+      // res.header('Access-Control-Allow-Credentials', 'true');
 
       res.cookie('refreshtoken', refreshtoken, {
         httpOnly: true,
         path: '/member/refresh_token',
       });
-      res.json({ accesstoken });
+      console.log(req.cookies);
+      res.json({ accesstoken, refreshtoken });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -80,7 +85,7 @@ const memberController = {
 
         res.json({ member, accesstoken });
       });
-    } catch (err) {
+    } catch (error) {
       return res.status(500).json({ msg: err.message });
     }
   },
