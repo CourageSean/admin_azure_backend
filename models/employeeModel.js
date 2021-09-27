@@ -8,6 +8,12 @@ const employeeSchema = new mongoose.Schema(
       trim: true,
       uniqe: true,
     },
+      UserName: {
+      type: String,
+      required: false,
+      trim: true,
+      
+    },
     email: {
       type: String,
       required: true,
